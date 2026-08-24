@@ -1,7 +1,3 @@
-<template>
-  <div ref="mapElement" class="task-location-map" aria-label="Mapa da localização" />
-</template>
-
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import L from 'leaflet'
@@ -9,11 +5,18 @@ import 'leaflet/dist/leaflet.css'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+import localIcon from '../assets/local.png'
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
+})
+const customIcon = L.icon({
+  iconUrl: localIcon,
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
 })
 
 const props = defineProps({
@@ -32,7 +35,9 @@ function renderLocation() {
 
   marker?.remove()
   accuracyCircle?.remove()
-  marker = L.marker(point).addTo(map)
+  marker = L.marker(point, {
+    icon: customIcon,
+  }).addTo(map)
   if (props.location.label) marker.bindPopup(props.location.label).openPopup()
 
   if (props.location.accuracy > 0) {
@@ -58,13 +63,17 @@ onMounted(() => {
 watch(() => props.location, renderLocation, { deep: true })
 onBeforeUnmount(() => map?.remove())
 </script>
-
+<template>
+  <div ref="mapElement" class="task-location-map" aria-label="Mapa da localização" />
+</template>
 <style scoped>
 .task-location-map {
   width: 100%;
   height: 240px;
-  margin-top: 12px;
+  margin-top: 20px;
+  margin-bottom: 20px;
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #fe874c;
 }
 </style>

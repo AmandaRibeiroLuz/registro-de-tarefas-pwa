@@ -160,14 +160,17 @@ const isMobileDevice = ref(
       <CameraCapture v-if="showCameraCapture" @captured="handleCameraCapture" />
 
     </div>
-    <div v-if="location">
+    <div v-if="location" class="location">
       <p v-if="location.label">
         {{ location.label }}
       </p>
 
       <TaskLocationMap :location="location" />
-    </div>
 
+      <button type="button" class="task-button-secondary" @click="clearLocation">
+        Remover localização
+      </button>
+    </div>
     <p v-if="locationError">
       {{ locationError }}
     </p>
@@ -307,5 +310,13 @@ const isMobileDevice = ref(
 
 .task-button-secondary:hover {
   background: #eaf2fb;
+}
+
+.location {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #ccc;
 }
 </style>
