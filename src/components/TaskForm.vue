@@ -1,6 +1,10 @@
 <script setup>
 import { ref, watch } from 'vue'
 import tasksApi from '../api/tasksApi.js'
+import { useGeolocation } from '../composables/useGeoLocation.js'
+import geocodingApi from '../api/geocodingApi.js'
+import { buildLocationPayload } from '../utils/location.js'
+import TaskLocationMap from './TaskLocationMap.vue'
 
 const props = defineProps({
   editingTask: {
@@ -8,6 +12,15 @@ const props = defineProps({
     default: null,
   },
 })
+const {
+  loadingLocation,
+  locationError,
+  location,
+  setLocationFromTask,
+  clearLocation,
+  setLocationLabel,
+  requestCurrentLocation,
+} = useGeolocation()
 
 const emit = defineEmits(['add', 'update', 'cancel'])
 const newTask = ref('')
@@ -19,9 +32,11 @@ watch(
   () => props.editingTask,
   (task) => {
     newTask.value = task ? task.title : '';
+    setLocationFromTask(task)
     if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
     previewUrl.value = null
     imgAttachmentKey.value = null
+
   },
 )
 
@@ -44,6 +59,21 @@ function handleCameraCapture(file) {
       uploading.value = false;
     });
 }
+async function handleGetLocation() {
+  const captured = await requestCurrentLocation()
+  if (!captured) return
+
+  try {
+    const address = await geocodingApi.reverse(
+      captured.latitude,
+      captured.longitude,
+    )
+    setLocationLabel(address?.label)
+  } catch {
+    locationError.value =
+      'Localização obtida, mas não foi possível identificar a rua.'
+  }
+}
 
 function handleSubmit() {
   if (!newTask.value.trim()) return;
@@ -51,6 +81,8 @@ function handleSubmit() {
   const payload = {
     title: newTask.value.trim(),
     imgAttachmentKey: imgAttachmentKey.value,
+    ...buildLocationPayload(location.value),
+
   };
 
   if (props.editingTask) {
@@ -121,9 +153,24 @@ const isMobileDevice = ref(
       <button type="button" class="task-button-secondary" @click="showCameraCapture = !showCameraCapture">
         {{ showCameraCapture ? 'Fechar câmera' : 'Abrir preview ao vivo' }}
       </button>
+      <button type="button" class="task-button-secondary" :disabled="loadingLocation" @click="handleGetLocation">
+        {{ loadingLocation ? 'Obtendo localização...' : 'Obter localização' }}
+      </button>
 
       <CameraCapture v-if="showCameraCapture" @captured="handleCameraCapture" />
+
     </div>
+    <div v-if="location">
+      <p v-if="location.label">
+        {{ location.label }}
+      </p>
+
+      <TaskLocationMap :location="location" />
+    </div>
+
+    <p v-if="locationError">
+      {{ locationError }}
+    </p>
   </form>
 
 </template>
@@ -258,7 +305,7 @@ const isMobileDevice = ref(
   transition: background-color 0.2s, border-color 0.2s;
 }
 
-.task-button-secondary:hover{
+.task-button-secondary:hover {
   background: #eaf2fb;
 }
 </style>
