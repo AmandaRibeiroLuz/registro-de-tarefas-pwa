@@ -1,11 +1,13 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import tasksApi from '../api/tasksApi.js'
 import { useGeolocation } from '../composables/useGeoLocation.js'
 import geocodingApi from '../api/geocodingApi.js'
 import { buildLocationPayload } from '../utils/location.js'
 import TaskLocationMap from './TaskLocationMap.vue'
+import { classifyAccuracy } from '../utils/location.js'
 
+const accuracyLevel = computed(() => classifyAccuracy(location.value?.accuracy))
 const props = defineProps({
   editingTask: {
     type: Object,
@@ -164,6 +166,9 @@ const isMobileDevice = ref(
       <p v-if="location.label">
         {{ location.label }}
       </p>
+      <span v-if="accuracyLevel" :class="`accuracy-badge accuracy-badge--${accuracyLevel}`">
+        Precisão {{ accuracyLevel }}
+      </span>
 
       <TaskLocationMap :location="location" />
 
@@ -318,5 +323,25 @@ const isMobileDevice = ref(
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px dashed #ccc;
+}
+.accuracy-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.accuracy-badge--boa {
+  background: #d4edda;
+  color: #155724;
+}
+
+.accuracy-badge--moderada {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.accuracy-badge--baixa {
+  background: #f8d7da;
+  color: #721c24;
 }
 </style>
