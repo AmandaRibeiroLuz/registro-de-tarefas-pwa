@@ -15,6 +15,10 @@ defineEmits(['toggle', 'remove', 'edit'])
       <input type="checkbox" :checked="task.done" @change="$emit('toggle', task.id)" />
       <span class="task-title">{{ task.title }}</span>
     </label>
+    <span v-if="task.location_label" class="task-location-tag" :title="task.location_label">
+      <img src="../assets/local.png" alt="Localização" class="task-location-icon" />
+      <span>{{ task.location_label }}</span>
+    </span>
     <div class="task-actions">
       <button class="task-edit" @click="$emit('edit', task)"><img src="/icons/editar.png" alt="Editar"></button>
       <button class="task-remove" @click="$emit('remove', task.id)"><img src="/icons/trash.png" alt="Excluir"></button>
@@ -110,4 +114,9 @@ defineEmits(['toggle', 'remove', 'edit'])
 .task-edit:hover {
   text-decoration: underline;
 }
+
+span img {
+  width: 20px;
+}
+
 </style>
