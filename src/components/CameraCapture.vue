@@ -101,9 +101,6 @@ function stopCamera() {
         Refazer
       </button>
 
-      <button v-if="streamActive" type="button" class="camera-btn danger" @click="stopCamera">
-        Fechar câmera
-      </button>
     </div>
 
     <p v-if="error" class="camera-error">{{ error }}</p>
@@ -154,10 +151,6 @@ function stopCamera() {
 
 .camera-btn.secondary {
   background: #6c757d;
-}
-
-.camera-btn.danger {
-  background: #e74c3c;
 }
 
 .camera-error {

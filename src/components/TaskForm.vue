@@ -144,34 +144,31 @@ const isMobileDevice = ref(
     <div class="image-section">
       <img v-if="previewUrl || editingTask?.img_url" :src="previewUrl || editingTask?.img_url" class="image-preview"
         alt="Imagem da tarefa" />
-
       <label class="image-label" :class="{ disabled: uploading }">
         <span v-if="uploading" class="upload-status">Enviando...</span>
+        <CameraCapture v-if="showCameraCapture" @captured="handleCameraCapture" />
         <span v-else>Adicionar imagem</span>
         <input type="file" accept="image/jpeg,image/png" capture="environment" class="image-input" :disabled="uploading"
           @change="handleImageChange" />
       </label>
-
       <button type="button" class="task-button-secondary" @click="showCameraCapture = !showCameraCapture">
         {{ showCameraCapture ? 'Fechar câmera' : 'Abrir preview ao vivo' }}
       </button>
       <button type="button" class="task-button-secondary" :disabled="loadingLocation" @click="handleGetLocation">
         {{ loadingLocation ? 'Obtendo localização...' : 'Obter localização' }}
       </button>
-
-      <CameraCapture v-if="showCameraCapture" @captured="handleCameraCapture" />
-
     </div>
     <div v-if="location" class="location">
-      <p v-if="location.label">
-        {{ location.label }}
-      </p>
-      <span v-if="accuracyLevel" :class="`accuracy-badge accuracy-badge--${accuracyLevel}`">
-        Precisão {{ accuracyLevel }}
-      </span>
-
+      <div class="adress">
+        <img src="../assets/local.png" alt="Localização" class="task-location-icon" />
+        <p v-if="location.label">
+          {{ location.label }}
+        </p>
+        <span v-if="accuracyLevel" :class="`accuracy-badge accuracy-badge--${accuracyLevel}`">
+          Precisão: {{ accuracyLevel }}.
+        </span>
+      </div>
       <TaskLocationMap :location="location" />
-
       <button type="button" class="task-button-secondary" @click="clearLocation">
         Remover localização
       </button>
@@ -324,9 +321,19 @@ const isMobileDevice = ref(
   border-radius: 8px;
   border: 1px dashed #ccc;
 }
+
+.adress {
+  display: flex;
+}
+
+.adress img {
+  width: 20px;
+}
+
 .accuracy-badge {
   font-size: 0.75rem;
   padding: 2px 8px;
+  margin-left: 30px;
   border-radius: 12px;
 }
 
